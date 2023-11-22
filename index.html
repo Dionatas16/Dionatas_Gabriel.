@@ -1,0 +1,95 @@
+<!-- Este é um formulário que ao ser preenchido, coloca as informações direto na página, 
+    como se tivessem sido registradas, utilizei o JavaScript para alterar a cor da caixa de nome e email, 
+    a função de cada parte do código está especificada como comentário.
+    OBS: Não entendi muito bem o que seria comentar as alterações na primeira linha, então fiz dessa maneira. --> 
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Formulário</title>
+</head>
+<body>
+    <main>
+        <form id="meuFormulario">
+            <label for="nome">Nome: </label>
+            <input type="text" name="nome" id="nome">
+            <br>
+            <label for="email">E-mail: </label>
+            <input type="text" name="email" id="email"><br>
+            <br>
+            <button type="button" onclick="salvar()">Salvar</button>
+        </form>
+
+        <ul id="listaItens"></ul> <!-- Lista para exibir os itens salvos -->
+
+    </main>
+
+</body>
+</html>
+<script>
+
+
+
+    const nome = document.getElementById('nome');
+const email = document.getElementById('email');
+const formulario = document.getElementById('meuFormulario');
+const listaItens = document.getElementById('listaItens');
+var dados = JSON.parse(localStorage.getItem('dados')) || [];
+
+// Função para exibir os itens salvos na página
+function exibirItens() {
+    listaItens.innerHTML = ''; 
+
+    dados.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.textContent = `Nome: ${item.nome}, Email: ${item.email} `;
+        const editarLink = document.createElement('a');
+        editarLink.href = `javascript:void(0);`; // Link sem ação por enquanto
+        editarLink.textContent = 'Editar';
+        editarLink.onclick = () => preencherFormulario(index); // Adiciona a função de preenchimento ao clicar
+        li.appendChild(editarLink);
+        listaItens.appendChild(li);
+    });
+}
+
+// Função para salvar ou editar um item
+function salvar() {
+    let novoNome = nome.value;
+    let novoEmail = email.value;
+
+    if (novoNome.trim() === '' || novoEmail.trim() === '') {
+        alert('Por favor, preencha todos os campos.');
+        return;
+    }
+
+    if (formulario.dataset.editando !== undefined) {
+        const indexEditando = parseInt(formulario.dataset.editando);
+        dados[indexEditando] = { nome: novoNome, email: novoEmail };
+        delete formulario.dataset.editando;
+    } else {
+        dados.push({ nome: novoNome, email: novoEmail });
+    }
+
+    localStorage.setItem('dados', JSON.stringify(dados));
+    exibirItens();
+
+    formulario.reset(); // Limpa o formulário
+}
+
+// Função para preencher o formulário ao editar um item
+function preencherFormulario(index) {
+    const item = dados[index];
+    nome.value = item.nome;
+    email.value = item.email;
+    formulario.dataset.editando = index;
+}
+
+// Chama a função para exibir os itens ao carregar a página
+exibirItens();
+
+nome.style.backgroundColor = 'yellow';
+email.style.backgroundColor = 'yellow';
+</script>
